@@ -8,7 +8,16 @@
 import UIKit
 
 class ReminderListViewController: UITableViewController {
-
+    static let showDetailSegueIdentifier = "ShowReminderDetailSegue"
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == Self.showDetailSegueIdentifier,
+           let destination = segue.destination as? ReminderDetailViewController,
+           let cell = sender as? UITableViewCell,
+           let indexPath = tableView.indexPath(for: cell) {
+            destination.configure(with: Reminder.testData[indexPath.row])
+        }
+    }
 }
 
 extension ReminderListViewController {
