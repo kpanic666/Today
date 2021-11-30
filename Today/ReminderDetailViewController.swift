@@ -31,7 +31,9 @@ class ReminderDetailViewController: UITableViewController {
         }
         
         if editing {
-            dataSource = ReminderDetailEditDataSource(reminder: reminder)
+            dataSource = ReminderDetailEditDataSource(reminder: reminder) { reminder in
+                self.editButtonItem.isEnabled = true
+            }
             navigationItem.title = "Edit Reminder"
             navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelButtonTrigger))
         } else {
