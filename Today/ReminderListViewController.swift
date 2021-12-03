@@ -8,10 +8,16 @@
 import UIKit
 
 class ReminderListViewController: UITableViewController {
+    @IBOutlet var filterSegmentedControl: UISegmentedControl!
+    
     static let showDetailSegueIdentifier = "ShowReminderDetailSegue"
     private var reminderListDataSource: ReminderListDataSource?
     static let mainStoryboardName = "Main"
     static let detailViewControllerIdentifier = "ReminderDetailViewController"
+    
+    private var filter: ReminderListDataSource.Filter {
+        ReminderListDataSource.Filter(rawValue: filterSegmentedControl.selectedSegmentIndex) ?? .today
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,12 +54,18 @@ class ReminderListViewController: UITableViewController {
         addReminder()
     }
     
+    @IBAction func segmentControlChanged(_ sender: UISegmentedControl) {
+        reminderListDataSource?.filter = filter
+        tableView.reloadData()
+    }
+    
     private func addReminder() {
         let storyboard = UIStoryboard(name: Self.mainStoryboardName, bundle: nil)
         let detailVC = storyboard.instantiateViewController(withIdentifier: Self.detailViewControllerIdentifier) as! ReminderDetailViewController
         let reminder = Reminder(title: "New Reminder", dueDate: Date())
         detailVC.configure(with: reminder, isNew: true, addAction: { reminder in
-            
+            self.reminderListDataSource?.add(reminder)
+            self.tableView.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         })
         let navigationController = UINavigationController(rootViewController: detailVC)
         present(navigationController, animated: true)
