@@ -106,3 +106,28 @@ class ReminderDetailViewController: UITableViewController {
         }
     }
 }
+
+extension ReminderDetailViewController {
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if isEditing {
+            cell.backgroundColor = UIColor(named: "EDIT_TableRowBackground")
+            guard let editSection = ReminderDetailEditDataSource.ReminderSection(rawValue: indexPath.section) else {
+                return
+            }
+            if editSection == .dueDate, indexPath.row == 0 {
+                cell.textLabel?.textColor = UIColor(named: "EDIT_DateLabelText")
+                cell.textLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+            }
+        } else {
+            cell.backgroundColor = .systemBackground
+            guard let viewRow = ReminderDetailViewDataSource.ReminderRow(rawValue: indexPath.row) else {
+                return
+            }
+            if viewRow == .title {
+                cell.textLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
+            } else {
+                cell.textLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+            }
+        }
+    }
+}

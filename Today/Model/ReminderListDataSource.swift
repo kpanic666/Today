@@ -103,7 +103,7 @@ extension ReminderListDataSource: UITableViewDataSource {
             title: currentReminder.title,
             dateText: dateText,
             isDone: currentReminder.isComplete
-        ) { [weak tableView] in
+        ) {
             var modifiedReminder = currentReminder
             modifiedReminder.isComplete.toggle()
             self.update(modifiedReminder, at: indexPath.row)
