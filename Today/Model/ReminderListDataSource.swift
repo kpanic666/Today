@@ -8,6 +8,9 @@
 import UIKit
 
 class ReminderListDataSource: NSObject {
+    typealias ReminderCompletedAction = (Int) -> Void
+    typealias ReminderDeletedAction = () -> Void
+    
     enum Filter: Int {
         case today
         case future
@@ -32,6 +35,23 @@ class ReminderListDataSource: NSObject {
         Reminder.testData
             .filter { filter.shouldInclude(date: $0.dueDate) }
             .sorted { $0.dueDate < $1.dueDate }
+    }
+    
+    var percentComplete: Double {
+        guard filteredReminders.count > 0 else {
+            return 1
+        }
+        let numComplete: Double = filteredReminders.reduce(0) { $0 + ($1.isComplete ? 1 : 0) }
+        return numComplete / Double(filteredReminders.count)
+    }
+    
+    private var reminderCompletedAction: ReminderCompletedAction?
+    private var reminderDeletedAction: ReminderDeletedAction?
+    
+    init(reminderCompletedAction: @escaping ReminderCompletedAction, reminderDeletedAction: @escaping ReminderDeletedAction) {
+        self.reminderCompletedAction = reminderCompletedAction
+        self.reminderDeletedAction = reminderDeletedAction
+        super.init()
     }
     
     func update(_ reminder: Reminder, at row: Int) {
@@ -68,7 +88,7 @@ extension ReminderListDataSource: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredReminders.count
     }
- 
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: Self.reminderListCellIdentifier,
@@ -87,7 +107,7 @@ extension ReminderListDataSource: UITableViewDataSource {
             var modifiedReminder = currentReminder
             modifiedReminder.isComplete.toggle()
             self.update(modifiedReminder, at: indexPath.row)
-            tableView?.reloadRows(at: [indexPath], with: .none)
+            self.reminderCompletedAction?(indexPath.row)
         }
         
         return cell
@@ -103,6 +123,7 @@ extension ReminderListDataSource: UITableViewDataSource {
         }) { (_) in
             tableView.reloadData()
         }
+        reminderDeletedAction?()
     }
 }
 
